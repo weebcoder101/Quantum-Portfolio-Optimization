@@ -1,0 +1,97 @@
+================================================================================
+PHASE 2 — CLASSICAL OPTIMIZATION BASELINE
+================================================================================
+
+────────────────────────────────────────────────────────────
+METHOD 1: BRUTE FORCE ENUMERATION
+────────────────────────────────────────────────────────────
+
+Total cardinality-feasible portfolios: 70
+Budget-feasible: 35
+Budget-infeasible: 35
+Feasibility ratio: 50.0%
+
+Full space budget-feasible vectors: 130 / 256
+
+Rank  Portfolio                       Cost   Return  Variance  Objective Feasible
+─────────────────────────────────────────────────────────────────────────────────────
+1     NVDA, JNJ, PG, JPM            1.0388   1.1328    0.3679   -0.01896        ✓
+2     NVDA, JNJ, PG, BRK-B          1.2245   0.9590    0.3108   -0.01674        ✓
+3     NVDA, XOM, JNJ, PG            0.8506   0.9466    0.3098   -0.01347        ✓
+4     NVDA, XOM, JNJ, BRK-B         1.2242   1.0603    0.3498   -0.01235        ✓
+5     NVDA, JNJ, JPM, BRK-B         1.4124   1.2465    0.4290    0.00336        ✓
+6     NVDA, XOM, JNJ, JPM           1.0386   1.2341    0.4256    0.00419        ✓
+7     MSFT, XOM, JNJ, JPM           1.2784   0.6601    0.2490    0.02360        ✓
+8     MSFT, JNJ, PG, JPM            1.2786   0.5587    0.2149    0.02411        ✓
+9     MSFT, XOM, JNJ, BRK-B         1.4640   0.4863    0.2070    0.04096        ✓
+10    NVDA, XOM, PG, BRK-B          1.1356   0.9315    0.3605    0.04236        ✓
+
+★ BRUTE FORCE OPTIMUM: ('NVDA', 'JNJ', 'PG', 'JPM')
+  Objective: -0.018961
+  Return:    1.13276
+  Variance:  0.36788
+  Cost:      1.03883
+
+────────────────────────────────────────────────────────────
+METHOD 2: GREEDY MARGINAL IMPROVEMENT
+────────────────────────────────────────────────────────────
+
+  Selected: ('NVDA', 'JNJ', 'PG', 'JPM')
+  Objective: -0.018961
+  Return:    1.13276
+  Variance:  0.36788
+  Cost:      1.03883
+  Budget feasible: True
+  Sector feasible: True
+  Rank among feasible portfolios: 1 / 35
+  Optimality gap vs brute force: +0.00%
+
+────────────────────────────────────────────────────────────
+METHOD 3: CONTINUOUS RELAXATION + ROUNDING
+────────────────────────────────────────────────────────────
+
+  Continuous solution (pre-rounding):
+      NVDA: 0.5923  █████████████████
+      MSFT: 0.0759  ██
+       LLY: 0.1798  █████
+       XOM: 0.4516  █████████████
+       JNJ: 1.0000  ██████████████████████████████
+        PG: 0.4381  █████████████
+       JPM: 0.6001  ██████████████████
+     BRK-B: 0.4228  ████████████
+
+  Rounded selection: ('NVDA', 'XOM', 'JNJ', 'JPM')
+  Objective: 0.004188
+  Return:    1.23411
+  Variance:  0.42564
+  Cost:      1.03858
+  Budget feasible: True
+  Rank among feasible portfolios: 6 / 35
+  Optimality gap vs brute force: +122.09%
+
+================================================================================
+COMPARISON SUMMARY
+================================================================================
+
+Method                           Portfolio                     Objective   Rank      Gap
+──────────────────────────────────────────────────────────────────────────────────────────
+Brute Force (exact)              ('NVDA', 'JNJ', 'PG', 'JPM')  -0.018961      1    0.00%
+Greedy Marginal                  ('NVDA', 'JNJ', 'PG', 'JPM')  -0.018961      1   +0.00%
+Continuous Relaxation            ('NVDA', 'XOM', 'JNJ', 'JPM')   0.004188      6 +122.09%
+
+================================================================================
+PHASE 1 CROSS-VALIDATION
+================================================================================
+
+  Phase 1 claimed optimum: {NVDA, JNJ, PG, JPM}, f* = -0.018997
+  Phase 2 computed optimum: {NVDA, JNJ, PG, JPM}, f* = -0.018961
+  Portfolio match: ✓ CONFIRMED
+  Objective difference: 3.606172e-05 (< 1e-4 ✓)
+
+  Phase 1 claimed |Ω_g2| = 130
+  Phase 2 computed |Ω_g2| = 130
+  Match: ✓ CONFIRMED
+
+  Phase 1 claimed feasible ratio: 35/70 = 50.0%
+  Phase 2 computed: 35/70 = 50.0%
+  Match: ✓ CONFIRMED
