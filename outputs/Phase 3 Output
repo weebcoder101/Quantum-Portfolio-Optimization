@@ -1,0 +1,343 @@
+================================================================================
+PHASE 3 — QUBO MATRIX VALIDATION & GROUND-STATE VERIFICATION
+  RIT Information-Theoretic Penalty Framework
+  Convention: SYMMETRIC Q, E = z^T Q z
+  ⚡ QC DEPLOYMENT MODE: α₁ safety margin = 1.05×
+================================================================================
+
+  Output file: /home/ronya/phase3.12_output.txt
+
+────────────────────────────────────────────────────────────
+STEP 0: PENALTY COEFFICIENT DERIVATION
+────────────────────────────────────────────────────────────
+
+  ── Objective Matrix ──
+    ||H_obj||_F = 0.143041
+
+  ── Penalty Structure Norms (symmetric convention) ──
+    ||V_1||_F (cardinality) = 21.1660
+    ||V_2||_F (budget)      = 6.6742
+
+  ── Information Costs ──
+    I_1 (cardinality) = 1.870717 bits  (65.7%)
+    I_2 (budget)      = 0.977632 bits  (34.3%)
+    I_total           = 2.848349 bits
+
+  ── Peer Condition (conditioning guarantee) ──
+    α₁_peer = (I₁/I_tot) × ||H_obj||_F / ||V₁||_F = 0.004439
+    α₂_peer = (I₂/I_tot) × ||H_obj||_F / ||V₂||_F = 0.007356
+
+  ── Best Objective by Cardinality Level ──
+    k=0: f* =  +0.000000  violation² = 16  portfolio = ()
+    k=1: f* =  -0.049599  violation² =  9  portfolio = ('JPM',)
+    k=2: f* =  -0.061202  violation² =  4  portfolio = ('NVDA', 'JNJ')
+    k=3: f* =  -0.053302  violation² =  1  portfolio = ('NVDA', 'JNJ', 'BRK-B')
+    k=4: f* =  -0.018961  violation² =  0  portfolio = ('NVDA', 'JNJ', 'PG', 'JPM') ◄ TARGET
+    k=5: f* =  +0.031927  violation² =  1  portfolio = ('NVDA', 'XOM', 'JNJ', 'PG', 'BRK-B')
+    k=6: f* =  +0.119969  violation² =  4  portfolio = ('NVDA', 'XOM', 'JNJ', 'PG', 'JPM', 'BRK-B')
+    k=7: f* =  +0.273608  violation² =  9  portfolio = ('NVDA', 'MSFT', 'XOM', 'JNJ', 'PG', 'JPM', 'BRK-B')
+    k=8: f* =  +0.477438  violation² = 16  portfolio = ('NVDA', 'MSFT', 'LLY', 'XOM', 'JNJ', 'PG', 'JPM', 'BRK-B')
+
+  ── Sufficiency Floor ──
+      k=1: profit = 0.030638, violation² = 9, required α₁ ≥ 0.003404
+      k=2: profit = 0.042241, violation² = 4, required α₁ ≥ 0.010560
+      k=3: profit = 0.034341, violation² = 1, required α₁ ≥ 0.034341
+    → α₁_suff = 0.034341 (binding at k=3)
+
+    Budget sufficiency floor:
+      Best budget-feasible k=4 obj:  -0.018961
+      Best budget-violating k=4 obj: 0.026049
+    → α₂_suff = 0.000000
+
+  ══ THEORETICAL PENALTY COEFFICIENTS ══
+    α₁ = max(peer=0.004439, suff=0.034341) = 0.034341  [SUFFICIENCY BINDS]
+    α₂ = max(peer=0.007356, suff=0.000000) = 0.007356  [PEER BINDS]
+
+  ══ QC SAFETY MARGIN APPLIED ══
+    α₁ (theoretical):  0.034341
+    Safety multiplier:  1.05×
+    α₁ (QC-hardened):   0.036058
+    α₂ (unchanged):     0.007356
+    Rationale: Widen energy gap from ~1.76×10⁻⁶ to ~10⁻³
+               for noise resilience on NISQ hardware.
+
+  ══ FINAL DEPLOYED PENALTY COEFFICIENTS ══
+    α₁ = 0.036058
+    α₂ = 0.007356
+
+  ── Frobenius Norm Budget ──
+    ||α₁ V₁||_F = 0.763196
+    ||α₂ V₂||_F = 0.049096
+    Penalty/Obj ratio = 5.68×
+
+────────────────────────────────────────────────────────────
+STEP 1: QUBO MATRIX CONSTRUCTION (symmetric convention)
+────────────────────────────────────────────────────────────
+
+QUBO matrix dimensions: 13 × 13
+  Decision variables: 8 (indices 0–7)
+  Slack variables:    5 (indices 8–12)
+  Total qubits:       13
+
+Decision block (8×8):
+             NVDA      MSFT       LLY       XOM       JNJ        PG       JPM     BRK-B
+   NVDA  -0.26027   0.09458   0.06818   0.03342   0.01593   0.02276   0.06624   0.04138
+   MSFT   0.09458  -0.24727   0.05044   0.03397   0.03217   0.03514   0.05181   0.04423
+    LLY   0.06818   0.05044  -0.23864   0.03660   0.04882   0.04852   0.05143   0.05157
+    XOM   0.03342   0.03397   0.03660  -0.24151   0.04176   0.04013   0.05032   0.04739
+    JNJ   0.01593   0.03217   0.04882   0.04176  -0.27585   0.04715   0.04108   0.04518
+     PG   0.02276   0.03514   0.04852   0.04013   0.04715  -0.23027   0.03839   0.04484
+    JPM   0.06624   0.05181   0.05143   0.05032   0.04108   0.03839  -0.30970   0.05677
+  BRK-B   0.04138   0.04423   0.05157   0.04739   0.04518   0.04484   0.05677  -0.28024
+
+  Scale verification (diagonal entries):
+    Asset       H_obj   Card pen    Bud pen       Q_ii
+    NVDA     -0.00231   -0.25240   -0.00555   -0.26027
+    MSFT     +0.01516   -0.25240   -0.01003   -0.24727
+    LLY      +0.03051   -0.25240   -0.01674   -0.23864
+    XOM      +0.01479   -0.25240   -0.00390   -0.24151
+    JNJ      -0.01769   -0.25240   -0.00576   -0.27585
+    PG       +0.02604   -0.25240   -0.00390   -0.23027
+    JPM      -0.04960   -0.25240   -0.00770   -0.30970
+    BRK-B    -0.01690   -0.25240   -0.01094   -0.28024
+
+  Slack diagonal:
+    Q[s1,s1] = -0.002336  (w_1 = 0.1)
+    Q[s2,s2] = -0.004526  (w_2 = 0.2)
+    Q[s3,s3] = -0.008463  (w_3 = 0.4)
+    Q[s4,s4] = -0.014571  (w_4 = 0.8)
+    Q[s5,s5] = -0.019727  (w_5 = 1.6)
+
+  Symmetry check: max|Q - Q^T| = 0.00e+00 ✓ SYMMETRIC
+
+  ── CONVENTION VERIFICATION ──
+    Test state: all 1s (k=8, all slack on)
+      f_obj           = +0.47743817
+      Card penalty    = α₁×4² = 0.57692188
+      Budget penalty  = α₂×4.7053² = 0.16285924
+      E_full          = +1.21721928
+      E_full - offset = +0.62056002
+      z^T Q z         = +0.62056002
+      |Error|         = 2.22e-16 ✓ CONVENTION CORRECT
+
+    Test state: target portfolio (NVDA,JNJ,PG,JPM), no slack
+      f_obj           = -0.01896094
+      Card penalty    = α₁×0² = 0.00000000
+      Budget penalty  = α₂×-0.5992² = 0.00264116
+      E_full          = -0.01631978
+      E_full - offset = -0.61297903
+      z^T Q z         = -0.61297903
+      |Error|         = 1.11e-16 ✓
+
+────────────────────────────────────────────────────────────
+STEP 2: EXHAUSTIVE ENUMERATION (2^13 = 8192 states)
+────────────────────────────────────────────────────────────
+
+★ QUBO GROUND STATE:
+  Full bitstring:  (1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0)
+  Decision bits:   (1, 0, 0, 0, 1, 1, 1, 0)  → ('NVDA', 'JNJ', 'PG', 'JPM')
+  Slack bits:      (0, 1, 1, 0, 0)  → slack = 0.6000
+  QUBO energy:     -0.61562019
+  Natural obj:     -0.01896094
+  Assets selected: 4
+  Normalized cost: 1.038830
+  Budget residual: 0.000794
+  Card. violation: (4 - 4)² = 0
+  Budget residual²: 0.00000063
+
+  Ground state convention check:
+    E_full (independent) = -0.01896093
+    z^T Q z + offset     = -0.01896093
+    |Error| = 2.22e-16 ✓
+
+  Phase 1 cross-validation:
+    Expected portfolio: ['JNJ', 'JPM', 'NVDA', 'PG']
+    QUBO ground state:  ['JNJ', 'JPM', 'NVDA', 'PG']
+    Match: ✓ CONFIRMED
+    Phase 1 reference obj:  -0.018961
+    QUBO ground state obj:  -0.018961
+    |Difference|: 6.17e-08 ✓
+
+  Top 20 QUBO states (by energy):
+  Rank      Decision    Slack       Energy     NatObj  |x|     Cost  Residual F?  Portfolio
+  ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  1         10001110    01100    -0.615620  -0.018961    4   1.0388   +0.0008 ✓   NVDA, JNJ, PG, JPM
+  2         10001110    10100    -0.615548  -0.018961    4   1.0388   -0.0992 ✓   NVDA, JNJ, PG, JPM
+  3         10001110    11100    -0.615545  -0.018961    4   1.0388   +0.1008 ✓   NVDA, JNJ, PG, JPM
+  4         10001110    00100    -0.615328  -0.018961    4   1.0388   -0.1992 ✓   NVDA, JNJ, PG, JPM
+  5         10001110    00010    -0.615324  -0.018961    4   1.0388   +0.2008 ✓   NVDA, JNJ, PG, JPM
+  6         10001110    11000    -0.614962  -0.018961    4   1.0388   -0.2992 ✓   NVDA, JNJ, PG, JPM
+  7         10001110    10010    -0.614955  -0.018961    4   1.0388   +0.3008 ✓   NVDA, JNJ, PG, JPM
+  8         10001110    01000    -0.614448  -0.018961    4   1.0388   -0.3992 ✓   NVDA, JNJ, PG, JPM
+  9         10001110    01010    -0.614439  -0.018961    4   1.0388   +0.4008 ✓   NVDA, JNJ, PG, JPM
+  10        10001001    01100    -0.613901  -0.053302    3   1.0535   +0.0155     NVDA, JNJ, BRK-B
+  11        10001001    10100    -0.613851  -0.053302    3   1.0535   -0.0845     NVDA, JNJ, BRK-B
+  12        10001001    11100    -0.613805  -0.053302    3   1.0535   +0.1155     NVDA, JNJ, BRK-B
+  13        10001110    10000    -0.613787  -0.018961    4   1.0388   -0.4992 ✓   NVDA, JNJ, PG, JPM
+  14        10001110    11010    -0.613775  -0.018961    4   1.0388   +0.5008 ✓   NVDA, JNJ, PG, JPM
+  15        10001001    00100    -0.613653  -0.053302    3   1.0535   -0.1845     NVDA, JNJ, BRK-B
+  16        10001001    00010    -0.613562  -0.053302    3   1.0535   +0.2155     NVDA, JNJ, BRK-B
+  17        10001101    00100    -0.613399  -0.016741    4   1.2245   -0.0136 ✓   NVDA, JNJ, PG, BRK-B
+  18        10001101    10100    -0.613346  -0.016741    4   1.2245   +0.0864 ✓   NVDA, JNJ, PG, BRK-B
+  19        10001001    11000    -0.613308  -0.053302    3   1.0535   -0.2845     NVDA, JNJ, BRK-B
+  20        10001101    11000    -0.613306  -0.016741    4   1.2245   -0.1136 ✓   NVDA, JNJ, PG, BRK-B
+
+  Energy gap (ground → 1st excited): 0.00007239
+  Relative gap / ||Q||_F: 0.0088%
+  ⚡ Gap with safety margin (1.05×): 0.00007239
+     (vs. ~1.76×10⁻⁶ at theoretical minimum)
+
+  State space analysis (8192 total):
+    Cardinality-feasible (|x| = 4): 2240  (27.3%)
+
+  Energy statistics — feasible states (card+budget):
+    Count: 1120
+    Min:   -0.615620
+    Max:   -0.344264
+    Mean:  -0.509479
+  Energy statistics — infeasible states:
+    Count: 7072
+    Min:   -0.613901
+    Max:   0.620560
+    Mean:  -0.357416
+
+  ── PENALTY SUFFICIENCY CHECK ──
+    Ground state feasible?  |x| = 4, cost = 1.0388  → YES ✓
+    Min feasible energy:    -0.615620
+    Min infeasible energy:  -0.613901
+    Gap (infeas − feas):    +0.001719
+    ✓ PENALTY SUFFICIENT: All infeasible states above feasible minimum.
+
+────────────────────────────────────────────────────────────
+STEP 3: ISING HAMILTONIAN MAPPING
+────────────────────────────────────────────────────────────
+
+  Ising offset E_0 = -0.37820564
+
+  Local fields h_i:
+    h[ NVDA] =  -0.043954
+    h[ MSFT] =  -0.053109
+    h[  LLY] =  -0.069866
+    h[  XOM] =  -0.022990
+    h[  JNJ] =  -0.001082
+    h[   PG] =  -0.025288
+    h[  JPM] =  -0.027255
+    h[BRK-B] =  -0.031764
+    h[   s1] =  -0.001128
+    h[   s2] =  -0.002256
+    h[   s3] =  -0.004513
+    h[   s4] =  -0.009025
+    h[   s5] =  -0.018050
+
+  Coupling strengths J_ij (decision block, top 5 by |J|):
+    J[ NVDA,  MSFT] =  +0.047288
+    J[ NVDA,   LLY] =  +0.034091
+    J[ NVDA,   JPM] =  +0.033118
+    J[  JPM, BRK-B] =  +0.028383
+    J[ MSFT,   JPM] =  +0.025905
+
+  Coupling strengths J_ij (weakest 3 in decision block):
+    J[ MSFT,   JNJ] =  +0.016086
+    J[ NVDA,    PG] =  +0.011381
+    J[ NVDA,   JNJ] =  +0.007967
+
+  Total couplings: 78 / 78 (100.0%)
+
+  Ising mapping verification (100 random states):
+    Max |E_QUBO - E_Ising| = 5.55e-16 ✓ VERIFIED
+
+  ── GROUND STATE ISING HAND-TRACE ──
+    Spin config: (-1, 1, 1, 1, -1, -1, -1, 1, 1, -1, -1, 1, 1)
+    E_0 (offset):     -0.37820564
+    Σ h_i s_i:        -0.10158461
+    Σ J_ij s_i s_j:   -0.13582994
+    ────────────────────────────────
+    E_Ising total:    -0.61562019
+    E_QUBO  (check):  -0.61562019
+    |Difference|:    2.22e-16 ✓
+
+────────────────────────────────────────────────────────────
+STEP 4: SPECTRAL ANALYSIS
+────────────────────────────────────────────────────────────
+
+  Full 13×13 QUBO matrix:
+    Frobenius norm:    0.823464
+    Condition number:  197.47
+    Eigenvalue range:  [-0.371791, 0.066852]
+    All eigenvalues:
+      λ_ 0 =    -0.371791
+      λ_ 1 =    -0.348059
+      λ_ 2 =    -0.324252
+      λ_ 3 =    -0.311358
+      λ_ 4 =    -0.291350
+      λ_ 5 =    -0.272815
+      λ_ 6 =    -0.227703
+      λ_ 7 =    -0.027788
+      λ_ 8 =    -0.013195
+      λ_ 9 =    -0.006584
+      λ_10 =    -0.003458
+      λ_11 =    -0.001883
+      λ_12 =    +0.066852
+    Signature: 1 positive, 12 negative, 0 zero
+
+  Decision block (8×8):
+    Frobenius norm:    0.822471
+    Condition number:  5.87
+    Eigenvalue range:  [-0.371778, 0.063293]
+    All eigenvalues:
+      λ_ 0 =    -0.371778
+      λ_ 1 =    -0.348006
+      λ_ 2 =    -0.324246
+      λ_ 3 =    -0.311356
+      λ_ 4 =    -0.291194
+      λ_ 5 =    -0.272785
+      λ_ 6 =    -0.227689
+      λ_ 7 =    +0.063293
+    Signature: 1 positive, 7 negative, 0 zero
+
+────────────────────────────────────────────────────────────
+STEP 5: SECTOR CONSTRAINT ANALYSIS
+────────────────────────────────────────────────────────────
+
+  Sector definitions (M_S = 2):
+    Technology           → ['NVDA', 'MSFT']  (max 2)
+    Financials           → ['JPM', 'BRK-B']  (max 2)
+    Healthcare           → ['LLY', 'JNJ']  (max 2)
+    Consumer Staples     → ['PG']  (max 2)
+    Energy               → ['XOM']  (max 2)
+
+  Ground state sector check:
+    Technology          : 1/2  ✓
+    Financials          : 1/2  ✓
+    Healthcare          : 1/2  ✓
+    Consumer Staples    : 1/2  ✓
+    Energy              : 0/2  ✓
+    Overall: ✓ ALL COMPLIANT
+
+  States violating sector constraints: 0 / 8192 (0.0%)
+
+================================================================================
+PHASE 3 — SUMMARY
+================================================================================
+
+  Convention:            Symmetric Q, E = z^T Q z
+  QUBO matrix:           13×13, symmetric ✓
+  Penalty derivation:    RIT peer + sufficiency floor
+  ⚡ QC safety margin:    1.05× on α₁
+  α₁ (cardinality):      0.036058  [suff × 1.05]
+  α₂ (budget):           0.007356  [peer]
+  Penalty/Obj ratio:     5.68×
+  Convention verified:    ✓
+  States enumerated:     8192
+  Ground state:          ('NVDA', 'JNJ', 'PG', 'JPM')
+  Ground state energy:   -0.61562019
+  Natural objective:     -0.01896094
+  Portfolio match:       ✓
+  Penalty sufficiency:   ✓
+  Ising mapping:         ✓
+  Sector compliance:     ✓
+  Energy gap:            0.00007239
+  Condition number:      197.47 (full), 5.87 (decision)
+
+  Output saved to: /home/ronya/phase3.12_output.txt
+================================================================================
